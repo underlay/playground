@@ -383,12 +383,12 @@ function makeSchema(subjectUri: string, uris: string[]) {
 function Step4(props: { subjectUri: string; table: Result; uris: string[] }) {
 	const [objectURL, setObjectURL] = React.useState("")
 	React.useEffect(() => {
-		const quads = Array.from(stream(props.table, props.subjectUri, props.uris))
+		const quads = Array.from(
+			generateQuads(props.table, props.subjectUri, props.uris)
+		)
 		RdfCanonize.canonize(quads, { algorithm: "URDNA2015" }).then((dataset) =>
 			setObjectURL(
-				URL.createObjectURL(
-					new Blob([dataset], { type: "application/n-quads" })
-				)
+				URL.createObjectURL(new Blob([dataset], { type: "text/plain" }))
 			)
 		)
 	}, [props.subjectUri, props.table, props.uris])
@@ -402,17 +402,13 @@ function Step4(props: { subjectUri: string; table: Result; uris: string[] }) {
 		<section className="download">
 			<h2>Step 4: download the files</h2>
 			<div>
-				<a href={schemaObjectURL} download="schema.toml">
-					Download schema
-				</a>
+				<a href={schemaObjectURL}>schema.toml</a>
 			</div>
 			<div>
 				{objectURL === "" ? (
 					<span>packaging...</span>
 				) : (
-					<a href={objectURL} download="assertion.nq">
-						Download assertion
-					</a>
+					<a href={objectURL}>assertion.nq</a>
 				)}
 			</div>
 		</section>
@@ -429,7 +425,7 @@ const xsdString = {
 	value: "http://www.w3.org/2001/XMLSchema#string",
 }
 
-function* stream(
+function* generateQuads(
 	table: Result,
 	subjectUri: string,
 	uris: string[]
