@@ -1,0 +1,32 @@
+{
+	"name": "playground",
+	"version": "0.0.1",
+	"description": "",
+	"main": "index.js",
+	"directories": {
+		"lib": "lib"
+	},
+	"dependencies": {
+		"@types/papaparse": "^5.2.0",
+		"@types/react": "^16.9.48",
+		"@types/react-dom": "^16.9.8",
+		"papaparse": "^5.3.0",
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1",
+		"typescript": "^4.0.2"
+	},
+	"devDependencies": {},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/underlay/playground.git"
+	},
+	"author": "",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/underlay/playground/issues"
+	},
+	"homepage": "https://github.com/underlay/playground#readme"
+}
