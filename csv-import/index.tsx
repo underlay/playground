@@ -370,13 +370,15 @@ function Namespace(props: {
 function makeSchema(subjectUri: string, uris: string[]) {
 	const lines = [
 		"[context]",
-		'xsd = "http://www.w3.org/2001/XMLSchema"',
+		'xsd = "http://www.w3.org/2001/XMLSchema#"\n',
+		"[types]",
 		`[types."${subjectUri}"]`,
+		"components = {",
 	]
 	for (const uri of uris) {
-		lines.push(`[types."${subjectUri}".components."${uri}"]`)
-		lines.push(`datatype = "xsd:string"`)
+		lines.push(`\t"${uri}"\n\t\t= { datatype = "xsd:string" }`)
 	}
+	lines.push("}\n")
 	return lines.join("\n")
 }
 
