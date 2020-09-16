@@ -1,4 +1,12 @@
-import { Quad } from "rdf-canonize"
+import React from "react"
+import ReactDOM from "react-dom"
+import papaparse from "papaparse"
+import { canonize, Quad } from "rdf-canonize"
+import jsonld from "jsonld"
+
+import "apg/context.jsonld"
+const contextUrl = "lib/context.jsonld"
+const contextFile = fetch(contextUrl).then((res) => res.json())
 
 const main = document.querySelector("main")
 
@@ -8,10 +16,12 @@ const accept = tabs.concat(commas).join(",")
 
 type ObjectResult = { [key: string]: string }
 type ArrayResult = string[]
-type Result = Papa.ParseResult<ObjectResult> | Papa.ParseResult<ArrayResult>
+type Result =
+	| papaparse.ParseResult<ObjectResult>
+	| papaparse.ParseResult<ArrayResult>
 
 function parse(text: string, headers: boolean): Result {
-	const result = Papa.parse(text, {
+	const result = papaparse.parse(text, {
 		header: headers,
 		skipEmptyLines: "greedy",
 	})
@@ -159,7 +169,7 @@ function Preview({ result, focus }: { result: Result; focus: number }) {
 						</tr>
 						{data.map((row, i) => (
 							<tr key={i.toString()}>
-								{result.meta.fields.map((field, j) => (
+								{result.meta.fields!.map((field, j) => (
 									<td key={field} className={j === focus ? "focus" : undefined}>
 										{row[field]}
 									</td>
@@ -333,7 +343,9 @@ function Namespace(props: {
 
 	const handleClick = React.useCallback(
 		({}: React.MouseEvent<HTMLButtonElement>) =>
-			props.onSubmit(props.table.meta.fields.map((field) => namespace + field)),
+			props.onSubmit(
+				props.table.meta.fields!.map((field) => namespace + field)
+			),
 		[props.table, props.onSubmit, namespace]
 	)
 
@@ -367,51 +379,82 @@ function Namespace(props: {
 	}
 }
 
-function makeSchema(subjectUri: string, uris: string[]) {
-	const lines = [
-		"[context]",
-		'xsd = "http://www.w3.org/2001/XMLSchema#"\n',
-		"[types]",
-		`[types."${subjectUri}"]`,
-		"components = {",
-	]
-	for (const uri of uris) {
-		lines.push(`\t"${uri}"\n\t\t= { datatype = "xsd:string" }`)
+async function makeSchema(subjectUri: string, uris: string[]): Promise<string> {
+	const context = await contextFile
+	const doc = {
+		...context,
+		"@graph": {
+			type: "label",
+			key: subjectUri,
+			value: {
+				type: "product",
+				components: uris.map((uri) => ({
+					type: "component",
+					key: uri,
+					value: { type: "literal", datatype: xsdString.value },
+				})),
+			},
+		},
 	}
-	lines.push("}\n")
-	return lines.join("\n")
+
+	return jsonld.normalize(doc, { algorithm: "URDNA2015" })
 }
 
 function Step4(props: { subjectUri: string; table: Result; uris: string[] }) {
-	const [objectURL, setObjectURL] = React.useState("")
+	const [dataObjectURL, setDataObjectURL] = React.useState<null | string>(null)
+	const [schemaObjectURL, setSchemaObjectURL] = React.useState<null | string>(
+		null
+	)
+
 	React.useEffect(() => {
-		const quads = Array.from(
-			generateQuads(props.table, props.subjectUri, props.uris)
-		)
-		RdfCanonize.canonize(quads, { algorithm: "URDNA2015" }).then((dataset) =>
-			setObjectURL(
-				URL.createObjectURL(new Blob([dataset], { type: "text/plain" }))
+		if (schemaObjectURL !== null) {
+			setSchemaObjectURL(null)
+		}
+		if (dataObjectURL !== null) {
+			setDataObjectURL(null)
+		}
+	}, [props.table, props.subjectUri, props.uris])
+
+	const handleClick = React.useCallback(
+		({}) => {
+			const quads = Array.from(
+				generateQuads(props.table, props.subjectUri, props.uris)
 			)
-		)
-	}, [props.subjectUri, props.table, props.uris])
+			Promise.all([
+				canonize(quads, { algorithm: "URDNA2015" }),
+				makeSchema(props.subjectUri, props.uris),
+			]).then(([data, schema]) => {
+				setSchemaObjectURL(
+					URL.createObjectURL(new Blob([schema], { type: "text/plain" }))
+				)
+				setDataObjectURL(
+					URL.createObjectURL(new Blob([data], { type: "text/plain" }))
+				)
+			})
+		},
+		[props.table, props.subjectUri, props.uris]
+	)
 
-	const schemaObjectURL = React.useMemo(() => {
-		const schema = makeSchema(props.subjectUri, props.uris)
-		return URL.createObjectURL(new Blob([schema], { type: "text/plain" }))
-	}, [props.subjectUri, props.uris])
-
+	const disabled = dataObjectURL !== null && schemaObjectURL !== null
 	return (
 		<section className="download">
 			<h2>Step 4: download the files</h2>
 			<div>
-				<a href={schemaObjectURL}>schema.toml</a>
+				<button disabled={disabled} onClick={handleClick}>
+					Generate files
+				</button>
 			</div>
 			<div>
-				{objectURL === "" ? (
-					<span>packaging...</span>
-				) : (
-					<a href={objectURL}>assertion.nq</a>
-				)}
+				{disabled ? (
+					<ul>
+						<li>
+							<a href={schemaObjectURL!}>schema.nq</a>
+						</li>
+						<li>
+							<a href={dataObjectURL!}>assertion.nq</a>
+						</li>
+					</ul>
+				) : null}
 			</div>
 		</section>
 	)
@@ -443,7 +486,7 @@ function* generateQuads(
 			graph: defaultGraph,
 		}
 		for (const j of uris.keys()) {
-			const value = Array.isArray(row) ? row[j] : row[table.meta.fields[j]]
+			const value = Array.isArray(row) ? row[j] : row[table.meta.fields![j]]
 			const term = {
 				termType: "Literal",
 				value: value || "",

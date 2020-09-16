@@ -1,0 +1,19 @@
+{
+	"@context": {
+		"id": "@id",
+		"type": "@type",
+		"@vocab": "http://underlay.org/ns/",
+		"key": {
+			"@type": "@id"
+		},
+		"datatype": {
+			"@type": "@id"
+		},
+		"options": {
+			"@reverse": "source"
+		},
+		"components": {
+			"@reverse": "source"
+		}
+	}
+}
