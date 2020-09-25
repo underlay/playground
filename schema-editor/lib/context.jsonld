@@ -6,6 +6,9 @@
 		"key": {
 			"@type": "@id"
 		},
+		"value": {
+			"@type": "@id"
+		},
 		"datatype": {
 			"@type": "@id"
 		},

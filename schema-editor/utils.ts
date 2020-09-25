@@ -1,13 +1,77 @@
-import React from "react"
 import { xsd } from "n3.ts"
 
-import { APG, isReference } from "apg"
+import { APG } from "apg"
 
-export function setArrayIndex<T>(array: T[], element: T, index: number): T[] {
-	const result = [...array]
-	result[index] = element
-	return result
+let idCounter = 0
+export const getId = () => `b${idCounter++}`
+
+const FONT_FAMILY = "monospace"
+const FONT_SIZE = 12
+const CHAR = 7.2
+const LINE_HEIGHT = 20
+
+const DataURIPrefix = "data:image/svg+xml;utf8,"
+
+const makeBackground = (content: string, width: number, height: number) => ({
+	width,
+	height,
+	svg:
+		DataURIPrefix +
+		encodeURIComponent(`<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE svg>
+<svg width="${width}" height="${height}"
+viewBox="0 0 ${width} ${height}"
+fill="none"
+xmlns="http://www.w3.org/2000/svg"
+font-size="${FONT_SIZE}"
+font-family="${FONT_FAMILY}">
+<style>text { fill: black }</style>
+${content}
+</svg>`),
+})
+
+export function makeLabelBackground(key: string) {
+	const width = Math.max(CHAR * key.length + 12, 20),
+		height = LINE_HEIGHT
+
+	return makeBackground(
+		`<g><text x="6" y="14">${key}</text></g>`,
+		width,
+		height
+	)
 }
+
+export function makeLiteralBackground(datatype: string) {
+	const name = xsdDatatypes.includes(datatype)
+		? `[${datatype.slice(datatype.lastIndexOf("#") + 1)}]`
+		: `<${datatype}>`
+
+	const width = CHAR * name.length + 8,
+		height = LINE_HEIGHT
+
+	const text = name.replace(/</g, "&lt;").replace(/>/g, "&gt;")
+	return makeBackground(
+		`<g><text x="4" y="13">${text}</text></g>`,
+		width,
+		height
+	)
+}
+
+export function handleCmdBackspace(
+	event: React.KeyboardEvent<HTMLInputElement>
+) {
+	if (event.key === "Backspace" && event.metaKey) {
+		event.stopPropagation()
+	}
+}
+
+export const DebounceDelay = 200
+
+export const isMeta =
+	window.navigator.platform === "MacIntel"
+		? (event: KeyboardEvent | MouseEvent) => event.metaKey
+		: (event: KeyboardEvent | MouseEvent) => event.ctrlKey
+
+export const Meta = window.navigator.platform === "MacIntel" ? "Cmd" : "Ctrl"
 
 export const uriPlaceholder = "http://..."
 export const namePlaceholder = "name or http://..."
@@ -32,71 +96,41 @@ export const validateKey = (input: string, namespace: null | string) =>
 		namespacePattern.test(namespace) &&
 		namePattern.test(input))
 
-export function isDuplicate(
-	id: string,
-	key: string,
-	labelMap: Map<string, string>
-) {
-	for (const [labelId, labelKey] of labelMap) {
-		if (labelKey === key && labelId !== id) {
-			return true
-		}
-	}
-	return false
-}
-
-export function findError(
+export function compactTypeWithNamespace(
 	type: APG.Type,
 	namespace: null | string
-): null | Error {
-	if (isReference(type)) {
-		return null
-	} else if (type.type === "product") {
-		const componentKeys: Set<string> = new Set()
-		for (const component of type.components) {
-			if (!validateKey(component.key, namespace)) {
-				return new Error("Invalid product component key")
-			} else if (componentKeys.has(component.key)) {
-				return new Error("Duplicate product component key")
-			} else {
-				const error = findError(component.value, namespace)
-				if (error !== null) {
-					return error
-				}
-			}
-		}
+) {
+	if (type.id.startsWith("_:")) {
+		type.id = type.id.slice(2)
 	}
-	return null
-}
-
-function compactTypeWithNamespace(type: APG.Type, namespace: string) {
-	if (isReference(type)) {
-		return
+	if (type.type === "label") {
+		if (namespace !== null && type.key.startsWith(namespace)) {
+			type.key = type.key.slice(namespace.length)
+		}
+		if (type.value.startsWith("_:")) {
+			type.value = type.value.slice(2)
+		}
 	} else if (type.type === "product") {
 		for (const component of type.components) {
-			compactTypeWithNamespace(component.value, namespace)
-			if (component.key.startsWith(namespace)) {
+			if (component.id.startsWith("_:")) {
+				component.id = component.id.slice(2)
+			}
+			if (namespace !== null && component.key.startsWith(namespace)) {
 				component.key = component.key.slice(namespace.length)
+			}
+			if (component.value.startsWith("_:")) {
+				component.value = component.value.slice(2)
 			}
 		}
 	} else if (type.type === "coproduct") {
 		for (const option of type.options) {
-			compactTypeWithNamespace(option.value, namespace)
+			if (option.value.startsWith("_:")) {
+				option.value = option.value.slice(2)
+			}
 		}
-	}
-}
-
-export function compactLabelWithNamespace(
-	labels: APG.Label[],
-	namespace: null | string
-) {
-	if (namespace === null) {
-		return
-	}
-	for (const label of labels) {
-		compactTypeWithNamespace(label.value, namespace)
-		if (label.key.startsWith(namespace)) {
-			label.key = label.key.slice(namespace.length)
+	} else if (type.type === "literal") {
+		if (namespace !== null && type.datatype.startsWith(namespace)) {
+			type.datatype = type.datatype.slice(namespace.length)
 		}
 	}
 }
@@ -109,45 +143,20 @@ export const xsdDatatypes: string[] = [
 	xsd.boolean,
 ]
 
-export const isImport: WeakSet<APG.Label[]> = new WeakSet()
-
-export const FocusContext = React.createContext<{
-	focus: null | string
-	setFocus: (focus: null | string) => void
-}>({ focus: null, setFocus: () => {} })
-
-export const LabelContext = React.createContext<Map<string, string>>(new Map())
-
-function cloneType(type: APG.Type): APG.Type {
-	if (isReference(type)) {
-		return { ...type }
-	} else if (type.type === "product") {
+export function cloneType(type: APG.Type): APG.Type {
+	if (type.type === "product") {
 		return {
+			id: type.id,
 			type: "product",
-			components: type.components.map((component) => ({
-				type: "component",
-				key: component.key,
-				value: cloneType(component.value),
-			})),
+			components: type.components.map((component) => ({ ...component })),
 		}
 	} else if (type.type === "coproduct") {
 		return {
+			id: type.id,
 			type: "coproduct",
-			options: type.options.map((option) => ({
-				type: "option",
-				value: cloneType(option.value),
-			})),
+			options: type.options.map((option) => ({ ...option })),
 		}
 	} else {
 		return { ...type }
 	}
-}
-
-export function cloneSchema(labels: APG.Label[]): APG.Label[] {
-	return labels.map((label) => ({
-		id: label.id,
-		type: "label",
-		key: label.key,
-		value: cloneType(label.value),
-	}))
 }

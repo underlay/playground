@@ -1,32 +1,29 @@
 import React from "react"
 
 import { useDebounce } from "use-debounce"
-
 import {
 	DebounceDelay,
 	handleCmdBackspace,
 	Meta,
 	propertyPatternURL,
 	validateKey,
-	makeLabelBackground,
 } from "./utils"
 
-export default function LabelEditor(props: {
+export default function ComponentEditor(props: {
 	ele: cytoscape.CollectionReturnValue
 	namespace: null | string
-	cy: cytoscape.Core
 }) {
 	const siblings = React.useMemo(
 		() =>
 			new Set(
-				props.cy
-					.elements("node.label")
+				props.ele
+					.source()
+					.outgoers("edge.component")
 					.difference(props.ele)
 					.map((sibling) => sibling.data("key"))
 			),
-		[props.ele, props.cy]
+		[props.ele]
 	)
-
 	const k: string = props.ele.data("key")
 	const [value, setValue] = React.useState(k)
 	const handleChange = React.useCallback(
@@ -38,8 +35,7 @@ export default function LabelEditor(props: {
 	const setKey = React.useCallback(
 		(key: string) => {
 			if (key !== props.ele.data("key")) {
-				const data = makeLabelBackground(key)
-				props.ele.data({ key, ...data })
+				props.ele.data({ key })
 			}
 		},
 		[props.ele]
@@ -70,8 +66,8 @@ export default function LabelEditor(props: {
 
 	return (
 		<React.Fragment>
-			<div className="type label">
-				<h2>Label</h2>
+			<div className="type component">
+				<h2>Component</h2>
 				<form>
 					<label>
 						<span>Key</span>
@@ -83,6 +79,7 @@ export default function LabelEditor(props: {
 						/>
 					</label>
 				</form>
+				<p>{Meta}-Click on a different node to change the component value</p>
 				<p>{Meta}-Backspace to delete</p>
 			</div>
 			{errors}

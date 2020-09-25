@@ -16,233 +16,119 @@
 				--border-color: #95a482;
 			}
 
+			html {
+				height: 100%;
+			}
+
+			body {
+				margin: 0;
+				height: 100%;
+			}
+
 			main {
-				padding-right: 0.5em;
-				width: max-content;
-			}
-
-			header {
-				display: flex;
-				align-items: baseline;
-				margin-left: 0.5em;
-				margin-right: 0.5em;
-				min-width: max-content;
-			}
-
-			header > h1 {
-				flex: 1;
-				margin-right: 1em;
-			}
-
-			header > button:first-of-type {
-				margin-right: 1em;
-			}
-
-			summary {
-				user-select: none;
-				cursor: pointer;
-			}
-
-			input[type="text"] {
-				font-family: monospace;
-			}
-
-			div.namespace {
-				margin-left: 0.5em;
-			}
-
-			div.namespace > label {
-				user-select: none;
-				margin-right: 0.5em;
+				height: 100%;
 			}
 
 			div.panels {
 				display: flex;
-				justify-content: space-between;
-				width: max-content;
-			}
-
-			div.panels section.editor {
-				margin-top: 0.75em;
-				min-width: 640px;
-			}
-
-			section.editor > details.label {
-				margin: 0.5em 0 0.5em 0.5em;
-				border: 1px solid var(--border-color);
-			}
-
-			section.editor details[open=""] > summary {
-				border-bottom: 1px solid var(--border-color);
-			}
-
-			section.editor > details.label > summary {
-				padding: 0.25em 0 0.25em 0.75em;
-			}
-
-			section.editor > details.label > summary::marker {
-				margin: 0.25em 0.75em;
-			}
-
-			section.editor > details.label > summary > h2 {
-				margin: 0.25em 0 0 0;
-				display: inline-block;
-				font-weight: initial;
-				font-family: monospace;
-				font-size: large;
-			}
-
-			section.editor div {
-				padding: 0.5em;
-				margin: 0.5em;
-				border: 1px solid var(--border-color);
-				padding-right: 0;
-				margin-right: 0;
-				border-right: none;
-			}
-
-			section.editor .focus {
-				box-shadow: inset 0px 0px 0px 2px darkolivegreen;
-			}
-
-			section.editor div.error {
-				border-width: 2px;
-				margin-left: calc(0.5em - 1px);
-				border-color: black;
-			}
-
-			section.editor > div.error {
-				border-right: 1px solid black;
-			}
-
-			section.editor > div.namespace,
-			section.editor > div.header {
-				border-right: 1px solid var(--border-color);
-			}
-
-			section.editor label > span:first-child {
-				margin-right: 0.5em;
-				user-select: none;
-			}
-
-			section.editor div.header {
-				display: flex;
-				justify-content: space-between;
-			}
-
-			section.editor div.header > button.add {
-				margin-right: 0.5em;
-			}
-
-			section.editor div.value {
-				display: flex;
-				align-items: baseline;
-			}
-
-			section.editor div.value > label.type {
-				margin-right: 1em;
-			}
-
-			section.editor div.value > span.remove {
-				flex: 1;
-				align-self: center;
-				margin-left: 1em;
-			}
-
-			section.editor div.value > span.remove > button {
-				float: right;
-				margin-right: 0.5em;
-			}
-
-			section.editor div.literal > label.datatype > input[type="text"] {
-				margin-left: 0.5em;
-			}
-
-			section.editor details.reference {
-				border: 1px solid var(--border-color);
-				border-right: none;
-				margin: 0.5em 0 0.5em 0.5em;
-			}
-
-			section.editor details.reference > summary {
-				padding: 0.5em 0.5em 0.25em 0.5em;
-			}
-
-			section.editor details.reference > form {
-				display: flex;
-				flex-wrap: wrap;
-				width: min-content;
-				min-width: 100%;
-				margin: 0.5em;
-			}
-
-			section.editor details.reference label {
-				margin-right: 1em;
-				cursor: pointer;
-			}
-
-			section.editor details.reference label:hover {
-				text-decoration: underline;
-			}
-
-			section.editor details.reference label > code {
-				margin-left: 0.25em;
-			}
-
-			section.editor input.uri {
-				width: 240px;
+				flex-direction: row;
+				height: calc(100% - 2em);
+				padding: 1em;
 			}
 
 			section.graph {
-				padding: 0 0.5em;
-				width: 720px;
-				height: 720px;
+				border: 1px solid var(--border-color);
+				background-color: whitesmoke;
+				width: 1024px;
+				max-height: 1024px;
+				height: 100%;
 			}
 
-			section.graph nav label {
-				margin-right: 0.5em;
-				user-select: none;
+			section.editor {
+				margin: 0 2em;
 			}
 
-			section.graph div.container {
+			section.editor footer {
 				border: 1px solid #ccc;
 				background-color: whitesmoke;
-				min-width: 720px;
-				height: 720px;
+				width: 450px;
+				height: 170px;
+				border: 1px solid var(--border-color);
 			}
 
-			section.graph footer {
-				border: 1px solid #ccc;
-				background-color: whitesmoke;
-				width: calc(720px - 2em);
-				height: 60px;
+			section.editor div.error {
+				padding: 1em;
 				margin: 1em 0;
+				border: 1px solid var(--border-color);
+			}
+
+			section.editor div.control {
+				padding: 1em;
+				margin: 1em 0;
+				border: 1px solid var(--border-color);
+			}
+
+			section.editor div.control div.io {
+				display: flex;
+				justify-content: space-between;
+			}
+
+			section.editor div.control div.layout {
+				display: flex;
+				justify-content: space-between;
+			}
+
+			section.editor div.control label span {
+				user-select: none;
+				margin-right: 0.5em;
+			}
+
+			section.editor div.control hr {
+				margin: 1em 0;
+				border-bottom-width: 0;
+			}
+
+			section.editor div.type {
 				padding: 0 1em;
-				pointer-events: none;
+				margin: 1em 0;
+				border: 1px solid var(--border-color);
+			}
+
+			section.editor select {
+				margin-left: 1em;
+			}
+			section.editor input[type="text"] {
+				font-family: monospace;
+				width: 240px;
+				margin-left: 1em;
 			}
 		</style>
 		<style>
-			section.editor > div.namespace {
+			section.editor div.control {
 				background-color: whitesmoke;
 			}
-			section.editor > div.header,
-			details.label,
-			details.reference {
-				background-color: seashell;
-			}
-			div.product {
+			section.editor div.product,
+			section.editor div.component {
 				background-color: aliceblue;
 			}
-			div.coproduct {
+			section.editor div.coproduct,
+			section.editor div.option {
 				background-color: lavender;
 			}
-			div.literal {
+			section.editor div.literal {
 				background-color: lightyellow;
 			}
-			div.value {
+			section.editor div.label {
+				background-color: seashell;
+			}
+			section.editor div.iri {
+				background-color: #d0ecd0;
+			}
+			section.editor div.value,
+			section.editor div.unit {
 				background-color: whitesmoke;
 			}
-			div.error {
+			section.editor div.error {
 				background-color: lavenderblush;
 			}
 		</style>

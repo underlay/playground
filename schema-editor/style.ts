@@ -6,20 +6,28 @@ export type LayoutOptions = {
 	inverted: boolean
 }
 
-export const MakeLayout = ({
-	circle,
-	directed,
-	inverted,
-}: LayoutOptions): cytoscape.LayoutOptions =>
-	({
-		name: "breadthfirst",
-		padding: 12,
-		animate: false,
-		spacingFactor: 1.5,
-		maximal: !inverted,
-		circle,
-		directed,
-	} as cytoscape.LayoutOptions)
+export const TreeLayout = {
+	name: "breadthfirst",
+	padding: 12,
+	animate: true,
+	spacingFactor: 1.2,
+	fit: false,
+	maximal: false,
+	circle: false,
+	directed: false,
+} as cytoscape.LayoutOptions
+
+export const CircleLayout = {
+	name: "breadthfirst",
+	padding: 12,
+	animate: true,
+	spacingFactor: 1.2,
+	fit: false,
+	maximal: false,
+	circle: true,
+	directed: false,
+	roots: "node.label",
+} as cytoscape.LayoutOptions
 
 export const Style: cytoscape.Stylesheet[] = [
 	{
@@ -87,38 +95,18 @@ export const Style: cytoscape.Stylesheet[] = [
 		style: {
 			shape: "diamond",
 			"background-color": "darkseagreen",
+			"border-color": "#5e735e",
 		},
 	},
 	{
-		selector: "node.reference",
-		style: {
-			width: 20,
-			height: 20,
-			shape: "ellipse",
-			"background-color": "mistyrose",
-		},
-	},
-	{
-		selector: "edge.reference",
+		selector: "edge.value",
 		style: {
 			width: 3,
-			"curve-style": "unbundled-bezier",
-			"control-point-distances": "-40",
-			"control-point-weights": "0.33",
+			"curve-style": "bezier",
 			"line-style": "solid",
-			"line-color": "#ddd",
-			"z-index": 1,
-		},
-	},
-	{
-		selector: "edge.definition",
-		style: {
-			width: 3,
-			"curve-style": "straight",
-			"line-style": "solid",
-			"line-color": "dimgrey",
-			"target-arrow-color": "dimgrey",
-			"source-arrow-color": "dimgrey",
+			"line-color": "#aaa",
+			"target-arrow-color": "#aaa",
+			// "target-arrow-shape": "square",
 			"z-index": 2,
 		},
 	},
@@ -127,7 +115,7 @@ export const Style: cytoscape.Stylesheet[] = [
 		style: {
 			width: 4,
 			label: "data(key)",
-			"curve-style": "straight",
+			"curve-style": "bezier",
 			"font-size": 10,
 			"text-background-color": "whitesmoke",
 			"text-background-padding": "4",
@@ -148,113 +136,46 @@ export const Style: cytoscape.Stylesheet[] = [
 		selector: "edge.option",
 		style: {
 			width: 4,
-			"curve-style": "straight",
+			"curve-style": "bezier",
 			"line-style": "dashed",
 			"line-dash-pattern": [4, 4],
 			"line-color": "#9696ae",
 			"target-arrow-color": "#9696ae",
 			"source-arrow-color": "#9696ae",
-			"source-arrow-shape": "tee",
-			"target-arrow-shape": "triangle",
+			"target-arrow-shape": "triangle-tee",
 			"z-index": 2,
 		},
 	},
 	{
-		selector: "node.focus",
+		selector: "node:selected",
 		style: {
 			"border-width": 3,
 		},
 	},
 	{
-		selector: "edge.focus",
+		selector: "edge.component:selected",
 		style: {
-			// width: 3,
-		},
-	},
-]
-
-export const FooterStyle: cytoscape.Stylesheet[] = [
-	{
-		selector: "node",
-		style: {
-			"font-family": "serif",
-			"font-size": "13px",
-			"border-width": 1,
-			"border-style": "solid",
-			"border-color": "#95a482",
+			width: 6,
+			"line-color": "darkslategray",
+			"target-arrow-color": "darkslategray",
+			"source-arrow-color": "darkslategray",
 		},
 	},
 	{
-		selector: "#label",
+		selector: "edge.option:selected",
 		style: {
-			label: "Label",
-			"border-width": 1,
-			width: 60,
-			height: 20,
-			shape: "round-rectangle",
-			"background-color": "seashell",
-			"border-color": "dimgrey",
+			width: 6,
+			"line-color": "#52526f",
+			"target-arrow-color": "#52526f",
+			"source-arrow-color": "#52526f",
 		},
 	},
 	{
-		selector: "#literal",
+		selector: "edge.value:selected",
 		style: {
-			label: "Literal",
-			width: 80,
-			height: 20,
-			shape: "rectangle",
-			"background-color": "lightyellow",
-		},
-	},
-	{
-		selector: "#product",
-		style: {
-			label: "Product",
-			shape: "hexagon",
-			width: 36,
-			height: 30,
-			"background-color": "aliceblue",
-			"border-color": "lightslategrey",
-		},
-	},
-	{
-		selector: "#coproduct",
-		style: {
-			label: "Coproduct",
-			shape: "round-hexagon",
-			width: 36,
-			height: 30,
-			"background-color": "lavender",
-			"border-color": "#9696ae",
-		},
-	},
-	{
-		selector: "#unit",
-		style: {
-			label: "Unit",
-			width: 20,
-			height: 20,
-			shape: "ellipse",
-			"background-color": "#ccc",
-			"border-color": "grey",
-		},
-	},
-	{
-		selector: "#iri",
-		style: {
-			label: "Iri",
-			shape: "diamond",
-			"background-color": "darkseagreen",
-		},
-	},
-	{
-		selector: "#reference",
-		style: {
-			label: "Label reference",
-			width: 20,
-			height: 20,
-			shape: "ellipse",
-			"background-color": "mistyrose",
+			width: 5,
+			"line-color": "dimgrey",
+			// "target-arrow-color": "dimgrey",
 		},
 	},
 ]
