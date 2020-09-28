@@ -32,22 +32,49 @@ export const CircleLayout = {
 export const Style: cytoscape.Stylesheet[] = [
 	{
 		selector: "node",
-		style: {
-			"border-width": 1,
-			"border-style": "solid",
-			"border-color": "#95a482",
-		},
+		style: { "border-width": 1, "border-style": "solid" },
+	},
+	{
+		selector: "node:selected",
+		style: { "border-width": 3 },
 	},
 	{
 		selector: "node.label",
 		style: {
-			"border-width": 1,
 			width: "data(width)",
 			height: "data(height)",
 			"background-image": "data(svg)",
 			shape: "round-rectangle",
 			"background-color": "seashell",
 			"border-color": "dimgrey",
+		},
+	},
+	{
+		selector: "node.reference",
+		style: {
+			width: 20,
+			height: 20,
+			shape: "ellipse",
+			"background-color": "mistyrose",
+			"border-color": "grey",
+		},
+	},
+	{
+		selector: "node.unit",
+		style: {
+			width: 20,
+			height: 20,
+			shape: "ellipse",
+			"background-color": "#ccc",
+			"border-color": "grey",
+		},
+	},
+	{
+		selector: "node.iri",
+		style: {
+			shape: "diamond",
+			"background-color": "darkseagreen",
+			"border-color": "#5e735e",
 		},
 	},
 	{
@@ -80,24 +107,7 @@ export const Style: cytoscape.Stylesheet[] = [
 			"border-color": "#9696ae",
 		},
 	},
-	{
-		selector: "node.unit",
-		style: {
-			width: 20,
-			height: 20,
-			shape: "ellipse",
-			"background-color": "#ccc",
-			"border-color": "grey",
-		},
-	},
-	{
-		selector: "node.iri",
-		style: {
-			shape: "diamond",
-			"background-color": "darkseagreen",
-			"border-color": "#5e735e",
-		},
-	},
+
 	{
 		selector: "edge.value",
 		style: {
@@ -105,9 +115,14 @@ export const Style: cytoscape.Stylesheet[] = [
 			"curve-style": "bezier",
 			"line-style": "solid",
 			"line-color": "#aaa",
-			"target-arrow-color": "#aaa",
-			// "target-arrow-shape": "square",
 			"z-index": 2,
+		},
+	},
+	{
+		selector: "edge.value:selected",
+		style: {
+			width: 5,
+			"line-color": "dimgrey",
 		},
 	},
 	{
@@ -133,6 +148,15 @@ export const Style: cytoscape.Stylesheet[] = [
 		},
 	},
 	{
+		selector: "edge.component:selected",
+		style: {
+			width: 6,
+			"line-color": "darkslategray",
+			"target-arrow-color": "darkslategray",
+			"source-arrow-color": "darkslategray",
+		},
+	},
+	{
 		selector: "edge.option",
 		style: {
 			width: 4,
@@ -147,21 +171,6 @@ export const Style: cytoscape.Stylesheet[] = [
 		},
 	},
 	{
-		selector: "node:selected",
-		style: {
-			"border-width": 3,
-		},
-	},
-	{
-		selector: "edge.component:selected",
-		style: {
-			width: 6,
-			"line-color": "darkslategray",
-			"target-arrow-color": "darkslategray",
-			"source-arrow-color": "darkslategray",
-		},
-	},
-	{
 		selector: "edge.option:selected",
 		style: {
 			width: 6,
@@ -171,11 +180,22 @@ export const Style: cytoscape.Stylesheet[] = [
 		},
 	},
 	{
-		selector: "edge.value:selected",
+		selector: "edge.reference-value",
+		style: {
+			width: 3,
+			"curve-style": "unbundled-bezier",
+			"control-point-distances": "-40",
+			"control-point-weights": "0.33",
+			"line-style": "solid",
+			"line-color": "#ddd",
+			"z-index": 1,
+		},
+	},
+	{
+		selector: "edge.reference-value:selected",
 		style: {
 			width: 5,
 			"line-color": "dimgrey",
-			// "target-arrow-color": "dimgrey",
 		},
 	},
 ]

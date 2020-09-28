@@ -1,7 +1,5 @@
 import { xsd } from "n3.ts"
 
-import { APG } from "apg"
-
 let idCounter = 0
 export const getId = () => `b${idCounter++}`
 
@@ -97,43 +95,55 @@ export const validateKey = (input: string, namespace: null | string) =>
 		namePattern.test(input))
 
 export function compactTypeWithNamespace(
-	type: APG.Type,
+	key: string,
 	namespace: null | string
 ) {
-	if (type.id.startsWith("_:")) {
-		type.id = type.id.slice(2)
-	}
-	if (type.type === "label") {
-		if (namespace !== null && type.key.startsWith(namespace)) {
-			type.key = type.key.slice(namespace.length)
-		}
-		if (type.value.startsWith("_:")) {
-			type.value = type.value.slice(2)
-		}
-	} else if (type.type === "product") {
-		for (const component of type.components) {
-			if (component.id.startsWith("_:")) {
-				component.id = component.id.slice(2)
-			}
-			if (namespace !== null && component.key.startsWith(namespace)) {
-				component.key = component.key.slice(namespace.length)
-			}
-			if (component.value.startsWith("_:")) {
-				component.value = component.value.slice(2)
-			}
-		}
-	} else if (type.type === "coproduct") {
-		for (const option of type.options) {
-			if (option.value.startsWith("_:")) {
-				option.value = option.value.slice(2)
-			}
-		}
-	} else if (type.type === "literal") {
-		if (namespace !== null && type.datatype.startsWith(namespace)) {
-			type.datatype = type.datatype.slice(namespace.length)
-		}
+	if (namespace !== null && key.startsWith(namespace)) {
+		return key.slice(namespace.length)
+	} else {
+		return key
 	}
 }
+
+// export function compactTypeWithNamespace(
+// 	id: string,
+// 	type: APG.Type,
+// 	namespace: null | string
+// ) {
+// 	if (id.startsWith("_:")) {
+// 		type.id = type.id.slice(2)
+// 	}
+// 	if (type.type === "label") {
+// 		if (namespace !== null && type.key.startsWith(namespace)) {
+// 			type.key = type.key.slice(namespace.length)
+// 		}
+// 		if (type.value.startsWith("_:")) {
+// 			type.value = type.value.slice(2)
+// 		}
+// 	} else if (type.type === "product") {
+// 		for (const component of type.components) {
+// 			if (component.id.startsWith("_:")) {
+// 				component.id = component.id.slice(2)
+// 			}
+// 			if (namespace !== null && component.key.startsWith(namespace)) {
+// 				component.key = component.key.slice(namespace.length)
+// 			}
+// 			if (component.value.startsWith("_:")) {
+// 				component.value = component.value.slice(2)
+// 			}
+// 		}
+// 	} else if (type.type === "coproduct") {
+// 		for (const option of type.options) {
+// 			if (option.value.startsWith("_:")) {
+// 				option.value = option.value.slice(2)
+// 			}
+// 		}
+// 	} else if (type.type === "literal") {
+// 		if (namespace !== null && type.datatype.startsWith(namespace)) {
+// 			type.datatype = type.datatype.slice(namespace.length)
+// 		}
+// 	}
+// }
 
 export const xsdDatatypes: string[] = [
 	xsd.string,
@@ -143,20 +153,20 @@ export const xsdDatatypes: string[] = [
 	xsd.boolean,
 ]
 
-export function cloneType(type: APG.Type): APG.Type {
-	if (type.type === "product") {
-		return {
-			id: type.id,
-			type: "product",
-			components: type.components.map((component) => ({ ...component })),
-		}
-	} else if (type.type === "coproduct") {
-		return {
-			id: type.id,
-			type: "coproduct",
-			options: type.options.map((option) => ({ ...option })),
-		}
-	} else {
-		return { ...type }
-	}
-}
+// export function cloneType(type: APG.Type): APG.Type {
+// 	if (type.type === "product") {
+// 		return {
+// 			id: type.id,
+// 			type: "product",
+// 			components: type.components.map((component) => ({ ...component })),
+// 		}
+// 	} else if (type.type === "coproduct") {
+// 		return {
+// 			id: type.id,
+// 			type: "coproduct",
+// 			options: type.options.map((option) => ({ ...option })),
+// 		}
+// 	} else {
+// 		return { ...type }
+// 	}
+// }

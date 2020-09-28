@@ -80,9 +80,9 @@ const FooterStyle: cytoscape.Stylesheet[] = [
 	},
 ]
 
-const attachFooterRef = (onSelect: (type: APG.Type["type"]) => void) => (
-	container: HTMLDivElement
-) => {
+const attachFooterRef = (
+	onSelect: (type: APG.Label["type"] | APG.Type["type"]) => void
+) => (container: HTMLDivElement) => {
 	if (container !== null) {
 		const cy = cytoscape({
 			container,
@@ -107,6 +107,8 @@ const attachFooterRef = (onSelect: (type: APG.Type["type"]) => void) => (
 	}
 }
 
-export function Legend(props: { onSelect: (type: APG.Type["type"]) => void }) {
+export function Legend(props: {
+	onSelect: (type: APG.Label["type"] | APG.Type["type"]) => void
+}) {
 	return <footer ref={attachFooterRef(props.onSelect)}></footer>
 }

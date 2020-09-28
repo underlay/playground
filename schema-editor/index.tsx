@@ -3,9 +3,6 @@ import ReactDOM from "react-dom"
 
 import cytoscape from "cytoscape"
 
-import "apg/context.jsonld"
-import "apg/schema.schema.jsonld"
-
 import { APG } from "apg"
 
 import { Control } from "./control"
@@ -25,10 +22,11 @@ import {
 
 const main = document.querySelector("main")
 
-const schemaSchemaURL = "lib/schema.schema.jsonld"
-const schemaSchemaFile = fetch(schemaSchemaURL).then((res) => res.json())
-const contextURL = "lib/context.jsonld"
-const contextFile = fetch(contextURL).then((res) => res.json())
+// const schemaSchemaURL = "lib/schema.schema.json"
+// const schemaSchemaFile = fetch(schemaSchemaURL).then((res) => res.json())
+// console.log(schemaSchemaJSON)
+// const contextURL = "lib/context.jsonld"
+// const contextFile = fetch(contextURL).then((res) => res.json())
 const defaultNamespace = "http://example.com/ns/"
 
 const cyOptions: cytoscape.CytoscapeOptions = {
@@ -46,6 +44,32 @@ const randomLayout = (cy: cytoscape.Core): cytoscape.RandomLayoutOptions => ({
 })
 
 const placementRadius = 160
+
+function addReference(
+	ele: cytoscape.CollectionReturnValue,
+	cy: cytoscape.Core
+): string {
+	const pos = ele.position()
+	const angle = Math.random() * 2 * Math.PI
+	const x = Math.cos(angle) * placementRadius
+	const y = Math.sin(angle) * placementRadius
+	const id = getId()
+	cy.add([
+		{
+			group: "nodes",
+			classes: "reference",
+			data: { id },
+			position: { x: pos.x + x, y: pos.y + y },
+		},
+		{
+			group: "edges",
+			classes: "reference-value",
+			data: { id: getId(), source: id, target: ele.id() },
+		},
+	])
+
+	return id
+}
 
 function addComponentOrOption(
 	ele: cytoscape.CollectionReturnValue,
@@ -78,7 +102,7 @@ function addComponentOrOption(
 }
 
 function addElement(
-	type: APG.Type["type"],
+	type: APG.Label["type"] | APG.Type["type"],
 	onClick: cytoscape.EventHandler,
 	cy: cytoscape.Core
 ) {
@@ -132,30 +156,39 @@ function addElement(
 }
 
 function removeElement(
-	ele: cytoscape.CollectionReturnValue,
+	ele: cytoscape.SingularElementReturnValue,
 	cy: cytoscape.Core
 ) {
 	if (ele.group() === "nodes") {
-		ele.incomers(".value").forEach((v) => {
-			const { x, y } = v.source().position()
-			const id = getId()
-			cy.add({
-				group: "nodes",
-				classes: "unit",
-				data: { id: id },
-				position: { x, y: y + 50 },
-			})
-			v.move({ target: id })
-		})
 		if (ele.hasClass("label")) {
-			const value = ele.outgoers("node")
+			ele.incomers("node.reference").forEach((r) => removeElement(r, cy))
+			const value = ele.outgoers("edge.value").target()
 			if (
 				value.hasClass("unit") &&
 				value.indegree(true) === 1 &&
 				value.outdegree(true) === 0
 			) {
 				value.remove()
+			} else if (value.hasClass("reference")) {
+				value.remove()
 			}
+		} else {
+			if (ele.hasClass("product")) {
+				ele.outgoers("edge.component").forEach((ele) => removeElement(ele, cy))
+			} else if (ele.hasClass("coproduct")) {
+				ele.incomers("edge.option").forEach((ele) => removeElement(ele, cy))
+			}
+			ele.incomers("edge.value").forEach((v) => {
+				const { x, y } = v.source().position()
+				const id = getId()
+				cy.add({
+					group: "nodes",
+					classes: "unit",
+					data: { id: id },
+					position: { x, y: y + 50 },
+				})
+				v.move({ target: id })
+			})
 		}
 	} else if (ele.hasClass("component")) {
 		const value = ele.target()
@@ -164,6 +197,8 @@ function removeElement(
 			value.indegree(true) === 1 &&
 			value.outdegree(true) === 0
 		) {
+			value.remove()
+		} else if (value.hasClass("reference")) {
 			value.remove()
 		}
 	} else if (ele.hasClass("option")) {
@@ -174,8 +209,11 @@ function removeElement(
 			value.indegree(true) === 0
 		) {
 			value.remove()
+		} else if (value.hasClass("reference")) {
+			value.remove()
 		}
 	}
+	ele.remove()
 }
 
 function Index({}) {
@@ -193,9 +231,9 @@ function Index({}) {
 				if (event.key === "Backspace" && isMeta(event)) {
 					if (focusRef.current === null) {
 					} else if (focusRef.current.hasClass("value")) {
+					} else if (focusRef.current.hasClass("reference-value")) {
 					} else {
 						removeElement(focusRef.current, cy)
-						focusRef.current.remove()
 						focusRef.current = null
 						setFocus(null)
 					}
@@ -218,47 +256,63 @@ function Index({}) {
 	const handleElementClick = React.useCallback(
 		(event: cytoscape.EventObject) => {
 			const { target, originalEvent } = event
-			if (
-				isMeta(originalEvent) &&
-				focusRef.current !== null &&
-				target.isNode()
-			) {
-				if (focusRef.current.id() === target.id()) {
+			if (cy !== null && isMeta(originalEvent) && focusRef.current !== null) {
+				if (target.isEdge() || target.hasClass("reference")) {
+					throw new Error("Unexpected element click event")
+				} else if (focusRef.current.id() === target.id()) {
 					if (target.hasClass("product")) {
-						addComponentOrOption(target, "component", handleElementClick, cy!)
+						addComponentOrOption(target, "component", handleElementClick, cy)
 					} else if (target.hasClass("coproduct")) {
-						addComponentOrOption(target, "option", handleElementClick, cy!)
+						addComponentOrOption(target, "option", handleElementClick, cy)
 					}
 				} else {
 					if (focusRef.current.hasClass("option")) {
-						const s = focusRef.current.source()
-						focusRef.current.move({ source: target.id() })
-						if (
-							s.hasClass("unit") &&
-							s.indegree(true) === 0 &&
-							s.outdegree(true) === 0
+						const oldSource = focusRef.current.source()
+						if (target.hasClass("label")) {
+							focusRef.current.move({ source: addReference(target, cy) })
+						} else {
+							focusRef.current.move({ source: target.id() })
+						}
+						if (oldSource.hasClass("reference")) {
+							oldSource.remove()
+						} else if (
+							oldSource.hasClass("unit") &&
+							oldSource.indegree(true) === 0 &&
+							oldSource.outdegree(true) === 0
 						) {
-							s.remove()
+							oldSource.remove()
 						}
 					} else if (focusRef.current.hasClass("component")) {
-						const t = focusRef.current.target()
-						focusRef.current.move({ target: target.id() })
-						if (
-							t.hasClass("unit") &&
-							t.indegree(true) === 0 &&
-							t.outdegree(true) === 0
+						const oldTarget = focusRef.current.target()
+						if (target.hasClass("label")) {
+							focusRef.current.move({ target: addReference(target, cy) })
+						} else {
+							focusRef.current.move({ target: target.id() })
+						}
+						if (oldTarget.hasClass("reference")) {
+							oldTarget.remove()
+						} else if (
+							oldTarget.hasClass("unit") &&
+							oldTarget.indegree(true) === 0 &&
+							oldTarget.outdegree(true) === 0
 						) {
-							t.remove()
+							oldTarget.remove()
 						}
 					} else if (focusRef.current.hasClass("value")) {
-						const t = focusRef.current.target()
-						focusRef.current.move({ target: target.id() })
-						if (
-							t.hasClass("unit") &&
-							t.indegree(true) === 0 &&
-							t.outdegree(true) === 0
+						const oldTarget = focusRef.current.target()
+						if (target.hasClass("label")) {
+							focusRef.current.move({ target: addReference(target, cy) })
+						} else {
+							focusRef.current.move({ target: target.id() })
+						}
+						if (oldTarget.hasClass("reference")) {
+							oldTarget.remove()
+						} else if (
+							oldTarget.hasClass("unit") &&
+							oldTarget.indegree(true) === 0 &&
+							oldTarget.outdegree(true) === 0
 						) {
-							t.remove()
+							oldTarget.remove()
 						}
 					}
 					focusRef.current.unselect()
@@ -269,7 +323,8 @@ function Index({}) {
 	)
 
 	const handleAddElement = React.useCallback(
-		(type: APG.Type["type"]) => cy && addElement(type, handleElementClick, cy),
+		(type: APG.Label["type"] | APG.Type["type"]) =>
+			cy && addElement(type, handleElementClick, cy),
 		[cy]
 	)
 

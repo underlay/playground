@@ -1,10 +1,11 @@
 const path = require("path")
 
 module.exports = {
+	target: "web",
 	devtool: "source-map",
 
 	entry: {
-		index: __dirname + "/index.tsx",
+		index: path.resolve(__dirname, "index.tsx"),
 	},
 
 	output: {
@@ -14,7 +15,10 @@ module.exports = {
 
 	resolve: {
 		extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
-		alias: { stream: "readable-stream", path: "path-browserify" },
+		alias: {
+			stream: "readable-stream",
+			path: "path-browserify",
+		},
 	},
 
 	node: {
@@ -25,8 +29,10 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.(jsonld)$/,
+				enforce: "pre",
+				test: /\.(jsonld|json)$/,
 				exclude: /shex\.js/,
+				type: "javascript/auto",
 				options: { publicPath: "lib", name: "[name].[ext]" },
 				loader: "file-loader",
 			},
@@ -37,8 +43,21 @@ module.exports = {
 			},
 			{
 				test: /\.tsx?$/,
-				exclude: /node_modules\//,
+				exclude: /\/node_modules\//,
 				loader: "ts-loader",
+			},
+			{
+				test: /\.js$/,
+				include: /\/node_modules\/apg\/lib\//,
+				rules: [
+					{
+						resolve: {
+							alias: {
+								"io-ts": path.resolve(__dirname, "io-ts.js"),
+							},
+						},
+					},
+				],
 			},
 		],
 	},
