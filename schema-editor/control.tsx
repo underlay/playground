@@ -182,11 +182,12 @@ export function Control(props: {
 							data: { id },
 						})
 						for (const [optionId, option] of type.options) {
+							const key = compactTypeWithNamespace(option.key, namespace)
 							if (typeof option.value === "string") {
 								elements.push({
 									group: "edges",
 									classes: "option",
-									data: { id: optionId, source: option.value, target: id },
+									data: { id: optionId, key, source: option.value, target: id },
 								})
 							} else {
 								const referenceId = getId()
@@ -194,7 +195,12 @@ export function Control(props: {
 									{
 										group: "edges",
 										classes: "option",
-										data: { id: optionId, source: referenceId, target: id },
+										data: {
+											id: optionId,
+											key,
+											source: referenceId,
+											target: id,
+										},
 									},
 									{
 										group: "nodes",
@@ -250,8 +256,8 @@ export function Control(props: {
 				const options: Map<string, Map<string, APG.Option>> = new Map()
 				props.cy.elements("edge.component, edge.option").forEach((edge) => {
 					const id = `_:${edge.id()}`
+					const key = edge.data("key")
 					if (edge.hasClass("component")) {
-						const key = edge.data("key")
 						const value = getValue(edge.target())
 						const product = edge.source().id()
 						const cs = components.get(product)
@@ -272,10 +278,10 @@ export function Control(props: {
 						if (os === undefined) {
 							options.set(
 								coproduct,
-								new Map([[id, Object.freeze({ type: "option", value })]])
+								new Map([[id, Object.freeze({ type: "option", key, value })]])
 							)
 						} else {
-							os.set(id, Object.freeze({ type: "option", value }))
+							os.set(id, Object.freeze({ type: "option", key, value }))
 						}
 					}
 				})

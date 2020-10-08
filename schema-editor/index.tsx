@@ -19,6 +19,7 @@ import {
 	makeLabelBackground,
 	makeLiteralBackground,
 } from "./utils"
+import OptionEditor from "./option"
 
 const main = document.querySelector("main")
 
@@ -91,11 +92,11 @@ function addComponentOrOption(
 	node.on("click", onClick)
 	const [source, target] =
 		classes === "component" ? [ele.id(), id] : [id, ele.id()]
-	const key = classes === "component" ? { key: "" } : {}
+
 	const edge = cy.add({
 		group: "edges",
 		classes: classes,
-		data: { id: getId(), source, target, ...key },
+		data: { id: getId(), source, target, key: "" },
 	})
 	edge.on("click", onClick)
 	edge.select()
@@ -443,13 +444,14 @@ function TypeDispatch(props: {
 	} else if (type === "component") {
 		return <ComponentEditor ele={props.ele} namespace={props.namespace} />
 	} else if (type === "option") {
-		return (
-			<div className="type option">
-				<h2>Option</h2>
-				<p>{Meta}-Click on another node to set the option value</p>
-				<p>{Meta}-Backspace to delete</p>
-			</div>
-		)
+		return <OptionEditor ele={props.ele} namespace={props.namespace} />
+		// return (
+		// 	<div className="type option">
+		// 		<h2>Option</h2>
+		// 		<p>{Meta}-Click on another node to set the option value</p>
+		// 		<p>{Meta}-Backspace to delete</p>
+		// 	</div>
+		// )
 	} else if (type === "value") {
 		return (
 			<div className="type value">

@@ -17,6 +17,21 @@
 		},
 		"components": {
 			"@reverse": "source"
+		},
+		"unit": {
+			"@type": "@id"
+		},
+		"iri": {
+			"@type": "@id"
+		},
+		"literal": {
+			"@type": "@id"
+		},
+		"product": {
+			"@type": "@id"
+		},
+		"coproduct": {
+			"@type": "@id"
 		}
 	}
 }
