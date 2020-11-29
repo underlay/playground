@@ -4,12 +4,6 @@
 		<meta charset="UTF-8" />
 		<title>schema editor</title>
 		<script defer src="lib/index.min.js"></script>
-		<script>
-			if (!("captureStackTrace" in Error)) {
-				Error.captureStackTrace = function () {}
-			}
-			let testRange, ShExJison
-		</script>
 
 		<link rel="stylesheet" href="style.css" type="text/css" />
 
@@ -30,126 +24,6 @@
 				margin-left: 1em;
 				background-color: whitesmoke;
 			}
-
-			/* :root {
-				--border-color: #95a482;
-			} */
-
-			/* html {
-				height: 100%;
-			}
-
-			body {
-				margin: 0;
-				height: 100%;
-			}
-
-			main {
-				height: 100%;
-			}
-
-			div.panels {
-				display: flex;
-				flex-direction: row;
-				height: calc(100% - 2em);
-				padding: 1em;
-			}
-
-			section.graph {
-				border: 1px solid var(--border-color);
-				background-color: whitesmoke;
-				width: 1024px;
-				max-height: 1024px;
-				height: 100%;
-			}
-
-			section.editor {
-				margin: 0 2em;
-			}
-
-			section.editor footer {
-				border: 1px solid #ccc;
-				background-color: whitesmoke;
-				width: 450px;
-				height: 170px;
-				border: 1px solid var(--border-color);
-			}
-
-			section.editor div.error {
-				padding: 1em;
-				margin: 1em 0;
-				border: 1px solid var(--border-color);
-			}
-
-			section.editor div.control {
-				padding: 1em;
-				margin: 1em 0;
-				border: 1px solid var(--border-color);
-			}
-
-			section.editor div.control div.io {
-				display: flex;
-				justify-content: space-between;
-			}
-
-			section.editor div.control div.layout {
-				display: flex;
-				justify-content: space-between;
-			}
-
-			section.editor div.control label span {
-				user-select: none;
-				margin-right: 0.5em;
-			}
-
-			section.editor div.control hr {
-				margin: 1em 0;
-				border-bottom-width: 0;
-			}
-
-			section.editor div.type {
-				padding: 0 1em;
-				margin: 1em 0;
-				border: 1px solid var(--border-color);
-			}
-
-			section.editor select {
-				margin-left: 1em;
-			}
-			section.editor input[type="text"] {
-				font-family: monospace;
-				width: 240px;
-				margin-left: 1em;
-			} */
-		</style>
-		<style>
-			/* section.editor div.control {
-				background-color: whitesmoke;
-			}
-			section.editor div.product,
-			section.editor div.component {
-				background-color: aliceblue;
-			}
-			section.editor div.coproduct,
-			section.editor div.option {
-				background-color: lavender;
-			}
-			section.editor div.literal {
-				background-color: lightyellow;
-			}
-			section.editor div.label {
-				background-color: seashell;
-			}
-			section.editor div.iri {
-				background-color: #d0ecd0;
-			}
-			section.editor div.value,
-			section.editor div.unit {
-				background-color: whitesmoke;
-			}
-			section.editor div.error {
-				background-color: lavenderblush;
-			} */
 		</style>
 	</head>
 
