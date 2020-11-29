@@ -1,8 +1,7 @@
 {
 	"name": "playground",
 	"version": "0.0.1",
-	"description": "",
-	"main": "",
+	"description": "A playground for Underlay tools and prototypes",
 	"dependencies": {
 		"@shexjs/term": "file:shex.js/packages/shex-term",
 		"@shexjs/util": "file:shex.js/packages/shex-util",
@@ -16,7 +15,7 @@
 		"type": "git",
 		"url": "git+https://github.com/underlay/playground.git"
 	},
-	"author": "",
+	"author": "Joel Gustafson",
 	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/underlay/playground/issues"
