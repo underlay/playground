@@ -47,10 +47,10 @@ export const Style: cytoscape.Stylesheet[] = [
 			height: "data(height)",
 		},
 	},
-	{
-		selector: "node:selected",
-		style: { "border-width": 3 },
-	},
+	// {
+	// 	selector: "node:selected",
+	// 	style: { "border-width": 3 },
+	// },
 	{
 		selector: "node.label",
 		style: {
@@ -145,13 +145,13 @@ export const Style: cytoscape.Stylesheet[] = [
 			"z-index": 2,
 		},
 	},
-	{
-		selector: "edge.type:selected",
-		style: {
-			width: 5,
-			"line-color": "dimgrey",
-		},
-	},
+	// {
+	// 	selector: "edge.type:selected",
+	// 	style: {
+	// 		width: 5,
+	// 		"line-color": "dimgrey",
+	// 	},
+	// },
 	{
 		selector: "edge.component, edge.option",
 		style: {
@@ -178,15 +178,15 @@ export const Style: cytoscape.Stylesheet[] = [
 			"z-index": 2,
 		},
 	},
-	{
-		selector: "edge.component:selected",
-		style: {
-			width: 6,
-			"line-color": "darkslategray",
-			"target-arrow-color": "darkslategray",
-			"source-arrow-color": "darkslategray",
-		},
-	},
+	// {
+	// 	selector: "edge.component:selected",
+	// 	style: {
+	// 		width: 6,
+	// 		"line-color": "darkslategray",
+	// 		"target-arrow-color": "darkslategray",
+	// 		"source-arrow-color": "darkslategray",
+	// 	},
+	// },
 	{
 		selector: "edge.option",
 		style: {
@@ -198,15 +198,15 @@ export const Style: cytoscape.Stylesheet[] = [
 			"z-index": 2,
 		},
 	},
-	{
-		selector: "edge.option:selected",
-		style: {
-			width: 6,
-			"line-color": "#52526f",
-			"target-arrow-color": "#52526f",
-			"source-arrow-color": "#52526f",
-		},
-	},
+	// {
+	// 	selector: "edge.option:selected",
+	// 	style: {
+	// 		width: 6,
+	// 		"line-color": "#52526f",
+	// 		"target-arrow-color": "#52526f",
+	// 		"source-arrow-color": "#52526f",
+	// 	},
+	// },
 	{
 		selector: "edge.reference",
 		style: {
@@ -219,12 +219,11 @@ export const Style: cytoscape.Stylesheet[] = [
 			"z-index": 1,
 		},
 	},
-
-	{
-		selector: "edge.reference:selected",
-		style: {
-			width: 5,
-			"line-color": "dimgrey",
-		},
-	},
+	// {
+	// 	selector: "edge.reference:selected",
+	// 	style: {
+	// 		width: 5,
+	// 		"line-color": "dimgrey",
+	// 	},
+	// },
 ]

@@ -12,9 +12,9 @@ namespace ex http://example.com#
 namespace ul http://underlay.org/ns/
 
 type foo {
-  ex:a -> ? uri ;
-  ex:b -> string ;
-  ex:c -> dateTime ;
+  ex:a -> ? uri;
+  ex:b -> string;
+  ex:c -> dateTime;
 }
 
 edge ex:cool ==/ ex:map /=> ex:wau
@@ -22,9 +22,9 @@ edge ex:cool ==/ ex:map /=> ex:wau
 class ex:cool unit
 
 class ex:wau {
-  ex:bar -> foo ;
-  ex:age -> integer ;
-  ex:self -> * ex:wau ;
+  ex:bar -> foo;
+  ex:age -> integer;
+  ex:self -> * ex:wau;
 }
 
 
