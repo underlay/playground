@@ -1,4 +1,3 @@
 # playground
 
-- [csv import](csv-import/index.html)
-- [schema editor](schema-editor/index.html)
+> https://underlay.github.io/playground/index.html

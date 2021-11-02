@@ -3,6 +3,9 @@ import ReactDOM from "react-dom"
 import papaparse from "papaparse"
 import { canonize, Quad } from "rdf-canonize"
 import jsonld from "jsonld"
+import { useDebounce } from "use-debounce"
+
+import { APG } from "apg"
 
 import "apg/context.jsonld"
 const contextUrl = "lib/context.jsonld"
@@ -245,12 +248,10 @@ function Step3(props: {
 	onFocus: (focus: number) => void
 	onChange: (uris: string[] | null) => void
 }) {
-	const handleBlur = React.useCallback(({}) => props.onFocus(NaN), [
-		props.onFocus,
-	])
-
 	const width = getWidth(props.table)
-	const [uris, setUris] = React.useState(() => new Array(width).fill(""))
+	const [uris, setUris] = React.useState<string[]>(() =>
+		new Array(width).fill("")
+	)
 	const valid = React.useMemo(
 		() => uris.map((uri) => propertyPattern.test(uri)),
 		[uris]
@@ -264,43 +265,70 @@ function Step3(props: {
 		}
 	}, [uris, valid]) // should props be a dependency??
 
+	const handleChange = (uri: string, index: number) => {
+		const nextUris = [...uris]
+		nextUris[index] = uri
+		setUris(nextUris)
+	}
+
 	return (
 		<section className="columns">
 			<h2>Step 3: name the columns with URIs</h2>
 			<Namespace table={props.table} onSubmit={setUris}></Namespace>
 			<table>
-				<tbody>
-					{uris.map((uri, index) => {
-						const label = getLabel(index, props.table)
-						const handleChange = ({
-							target: { value },
-						}: React.ChangeEvent<HTMLInputElement>) => {
-							const nextUris = [...uris]
-							nextUris[index] = value
-							setUris(nextUris)
-						}
-
-						return (
-							<tr key={index.toString()}>
-								<td>{label}</td>
-								<td>
-									<input
-										type="text"
-										placeholder="http://example.com/..."
-										pattern={propertyPattern.source}
-										onFocus={({}) => props.onFocus(index)}
-										onBlur={handleBlur}
-										value={uri}
-										onChange={handleChange}
-									></input>
-									{uri && !valid[index] && <Validate />}
-								</td>
-							</tr>
-						)
-					})}
-				</tbody>
+				<tbody>{uris.map((uri, index) => {})}</tbody>
 			</table>
 		</section>
+	)
+}
+
+function Property(props: {
+	table: Result
+	uri: string
+	index: number
+	onFocus: (index: number) => void
+	onChange: (uri: string, index: number) => void
+}) {
+	const handleBlur = React.useCallback(({}) => props.onFocus(NaN), [
+		props.onFocus,
+	])
+
+	const label = React.useMemo(() => getLabel(props.index, props.table), [
+		props.index,
+		props.table,
+	])
+
+	const [value, setValue] = React.useState<string>(props.uri)
+	const handleChange = React.useCallback(
+		({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+			setValue(value)
+		},
+		[]
+	)
+
+	const [uri] = useDebounce(value, 500)
+	React.useEffect(() => {
+		if (uri !== props.uri && propertyPattern.test(uri)) {
+			props.onChange(uri, props.index)
+		}
+	}, [uri, props.uri, props.index])
+
+	return (
+		<tr>
+			<td>{label}</td>
+			<td>
+				<input
+					type="text"
+					placeholder="http://example.com/..."
+					pattern={propertyPattern.source}
+					onFocus={({}) => props.onFocus(props.index)}
+					onBlur={handleBlur}
+					value={value}
+					onChange={handleChange}
+				></input>
+				{!propertyPattern.test(value) && <Validate />}
+			</td>
+		</tr>
 	)
 }
 
