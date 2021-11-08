@@ -16,6 +16,8 @@ const extensions = [
 	keymap.of(defaultKeymap),
 ]
 
+;(window as any).taslLanguage = taslLanguage
+
 interface EditorProps {
 	initialValue: string
 	onChange?: (value: string) => void
